@@ -1,19 +1,22 @@
-package pl.teo.realworldapp.model;
+package pl.teo.realworldapp.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@JsonRootName("profile")
 @Getter @Setter @NoArgsConstructor
-public class Profile {
-
+@JsonRootName("user")
+@Entity
+@Table(name = "users")
+public class UserUpdateDto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String username;
+    private String email;
+    private String password;
     private String bio;
     private String image;
-    private boolean following;
-
 }
