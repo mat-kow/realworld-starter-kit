@@ -3,7 +3,9 @@ package pl.teo.realworldapp.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.teo.realworldapp.app.jwt.JwtBuilder;
 import pl.teo.realworldapp.model.User;
 import pl.teo.realworldapp.model.dto.UserLoginDto;
 import pl.teo.realworldapp.model.dto.UserRegisterDto;
@@ -14,17 +16,18 @@ import pl.teo.realworldapp.model.repositories.UserRepo;
 @Service
 @RequiredArgsConstructor
 public class UserServiceDefault implements UserService {
-    @Autowired
     private final UserRepo userRepo;
-    @Autowired
     private final ModelMapper mapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtBuilder jwtBuilder;
 
     @Override
     public UserAuthenticationDto register(UserRegisterDto registerDto) {
         if (userRepo.existsByEmailOrUsername(registerDto.getUsername(), registerDto.getEmail())) {
+            //todo custom exception
             throw new RuntimeException();
         }
-        //todo encrypt password
+        registerDto.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         User savedUser = userRepo.save(mapper.map(registerDto, User.class));
         return mapper.map(savedUser, UserAuthenticationDto.class);
     }
@@ -38,10 +41,10 @@ public class UserServiceDefault implements UserService {
     public UserAuthenticationDto login(UserLoginDto userLoginDto) {
         User user = userRepo.findUserByEmailIgnoreCase(userLoginDto.getEmail())
                 //todo custom exception
-                .orElseThrow(() -> new RuntimeException("User does nor exists"));
-        //todo use encryption
-        if (userLoginDto.getPassword().equals(user.getPassword())) {
+                .orElseThrow(() -> new RuntimeException("User does not exists"));
+        if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             UserAuthenticationDto authenticationDto = mapper.map(user, UserAuthenticationDto.class);
+            authenticationDto.setToken(jwtBuilder.getToken(String.valueOf(user.getId())));
             return authenticationDto;
         }
         //todo return "Forbidden"
