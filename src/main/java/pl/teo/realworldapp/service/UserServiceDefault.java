@@ -2,7 +2,6 @@ package pl.teo.realworldapp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.teo.realworldapp.app.jwt.JwtBuilder;
@@ -12,6 +11,8 @@ import pl.teo.realworldapp.model.dto.UserRegisterDto;
 import pl.teo.realworldapp.model.dto.UserUpdateDto;
 import pl.teo.realworldapp.model.repositories.UserAuthenticationDto;
 import pl.teo.realworldapp.model.repositories.UserRepo;
+
+import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +34,8 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public UserAuthenticationDto getCurrent() {
-        return mapper.map(getCurrentUser(), UserAuthenticationDto.class);
+    public UserAuthenticationDto getCurrent(Principal principal) {
+        return mapper.map(getCurrentUser(principal), UserAuthenticationDto.class);
     }
 
     @Override
@@ -52,13 +53,12 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public UserAuthenticationDto update(UserUpdateDto user) {
-        User currentUser = getCurrentUser();
+    public UserAuthenticationDto update(UserUpdateDto user, Principal principal) {
+        User currentUser = getCurrentUser(principal);
 
         if (user.getUsername() != null) currentUser.setUsername(user.getUsername());
         if (user.getEmail() != null) currentUser.setEmail(user.getEmail());
-        //todo encrypt
-        if (user.getPassword() != null) currentUser.setPassword(user.getPassword());
+        if (user.getPassword() != null) currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getBio() != null) currentUser.setBio(user.getBio());
         if (user.getImage() != null) currentUser.setImage(user.getImage());
 
@@ -67,9 +67,10 @@ public class UserServiceDefault implements UserService {
                 UserAuthenticationDto.class);
     }
 
-    private User getCurrentUser() {
-        //todo get it from JWT
-        return new User("qw","qw",null);
+    private User getCurrentUser(Principal principal) {
+        return userRepo.findUserById(Long.parseLong(principal.getName()))
+                //todo custom exception
+                .orElseThrow(RuntimeException::new);
     }
 }
 

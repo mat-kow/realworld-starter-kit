@@ -18,19 +18,17 @@ import javax.crypto.SecretKey;
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
-        http
-                .csrf(csfr -> csfr.disable())
-                .authorizeHttpRequests((requests) -> ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl)
-                    requests
-                            .requestMatchers(HttpMethod.POST,"/api/users", "/api/users/login").permitAll()
-                            .anyRequest())
-                            .authenticated()
-        );
 
-//        http.httpBasic(Customizer.withDefaults());
-        http.addFilterBefore(new JwtRequestFilter(secretKey()), UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/users", "/api/users/login").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtRequestFilter(secretKey()), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

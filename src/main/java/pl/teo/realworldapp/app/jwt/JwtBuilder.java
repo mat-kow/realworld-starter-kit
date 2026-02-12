@@ -23,7 +23,7 @@ public class JwtBuilder {
         Date now = new Date();
         return Jwts.builder()
                 .subject(subject)
-                .claim("authority", grantedAuthorities)
+                .claim("authorities", grantedAuthorities)
                 .issuedAt(now)
                 .expiration(Date.from(now.toInstant().plus(14, ChronoUnit.DAYS)))
                 .signWith(secretKey)

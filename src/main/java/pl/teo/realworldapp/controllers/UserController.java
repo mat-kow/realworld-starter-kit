@@ -1,4 +1,4 @@
-package pl.teo.realworldapp;
+package pl.teo.realworldapp.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import pl.teo.realworldapp.model.dto.UserRegisterDto;
 import pl.teo.realworldapp.model.dto.UserUpdateDto;
 import pl.teo.realworldapp.service.UserService;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,6 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    //TODO use Spring Security
     @PostMapping("/users")
     public Map<String, Object> register(@RequestBody UserRegisterDto user) {
         return getUserMapWrapper(userService.register(user));
@@ -31,13 +31,13 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public Map<String, Object> getUser() {
-        return getUserMapWrapper(userService.getCurrent());
+    public Map<String, Object> getUser(Principal principal) {
+        return getUserMapWrapper(userService.getCurrent(principal));
     }
 
     @PutMapping("/user")
-    public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
-        return getUserMapWrapper(userService.update(userUpdateDto));
+    public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto, Principal principal) {
+        return getUserMapWrapper(userService.update(userUpdateDto, principal));
     }
 
     private Map<String, Object> getUserMapWrapper(Object object) {

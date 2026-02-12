@@ -1,7 +1,6 @@
 package pl.teo.realworldapp.app.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,6 +33,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Token ")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         String token = authorizationHeader.replace("Token ", "");
@@ -53,5 +53,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .collect(Collectors.toSet());
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, simpleGrantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        filterChain.doFilter(request, response);
     }
 }
