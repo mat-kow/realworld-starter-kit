@@ -1,4 +1,4 @@
-package pl.teo.realworldapp.service;
+package pl.teo.realworldapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -9,8 +9,9 @@ import pl.teo.realworldapp.model.User;
 import pl.teo.realworldapp.model.dto.UserLoginDto;
 import pl.teo.realworldapp.model.dto.UserRegisterDto;
 import pl.teo.realworldapp.model.dto.UserUpdateDto;
-import pl.teo.realworldapp.model.repositories.UserAuthenticationDto;
+import pl.teo.realworldapp.model.dto.UserAuthenticationDto;
 import pl.teo.realworldapp.model.repositories.UserRepo;
+import pl.teo.realworldapp.service.UserService;
 
 import java.security.Principal;
 
@@ -34,7 +35,7 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public UserAuthenticationDto getCurrent(Principal principal) {
+    public UserAuthenticationDto getCurrentDto(Principal principal) {
         return mapper.map(getCurrentUser(principal), UserAuthenticationDto.class);
     }
 
@@ -67,7 +68,8 @@ public class UserServiceDefault implements UserService {
                 UserAuthenticationDto.class);
     }
 
-    private User getCurrentUser(Principal principal) {
+    @Override
+    public User getCurrentUser(Principal principal) {
         return userRepo.findUserById(Long.parseLong(principal.getName()))
                 //todo custom exception
                 .orElseThrow(RuntimeException::new);

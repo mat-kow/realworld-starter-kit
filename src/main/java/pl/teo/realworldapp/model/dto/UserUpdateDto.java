@@ -8,12 +8,7 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
 @JsonRootName("user")
-@Entity
-@Table(name = "users")
 public class UserUpdateDto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
     private String username;
     private String email;
     private String password;

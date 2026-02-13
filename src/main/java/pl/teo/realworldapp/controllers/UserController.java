@@ -32,7 +32,7 @@ public class UserController {
 
     @GetMapping("/user")
     public Map<String, Object> getUser(Principal principal) {
-        return getUserMapWrapper(userService.getCurrent(principal));
+        return getUserMapWrapper(userService.getCurrentDto(principal));
     }
 
     @PutMapping("/user")

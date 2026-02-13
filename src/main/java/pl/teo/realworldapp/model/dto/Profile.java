@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter @Setter @NoArgsConstructor
 public class Profile {
 
-    private Long id;
     private String username;
     private String bio;
     private String image;
