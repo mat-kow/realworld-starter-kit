@@ -6,10 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.teo.realworldapp.app.jwt.JwtBuilder;
 import pl.teo.realworldapp.model.User;
-import pl.teo.realworldapp.model.dto.UserLoginDto;
-import pl.teo.realworldapp.model.dto.UserRegisterDto;
-import pl.teo.realworldapp.model.dto.UserUpdateDto;
-import pl.teo.realworldapp.model.dto.UserAuthenticationDto;
+import pl.teo.realworldapp.model.dto.*;
 import pl.teo.realworldapp.model.repositories.UserRepo;
 import pl.teo.realworldapp.service.UserService;
 
@@ -54,6 +51,26 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
+    public Profile getProfileByUsername(String username) {
+        User user = userRepo.findUserByUsername(username)
+                //todo custom exception
+                .orElseThrow(() -> new RuntimeException("User does not exists"));
+
+        return mapper.map(user, Profile.class);
+    }
+
+    @Override
+    public Profile followProfile(String profileName, Principal principal) {
+        User currentUser = getCurrentUser(principal);
+        User toFollow = userRepo.findUserByUsername(profileName)
+                //todo custom exception
+                .orElseThrow(() -> new RuntimeException("User does not exists"));
+        currentUser.getFollowed().add(toFollow);
+        userRepo.save(currentUser);
+        return mapper.map(toFollow, Profile.class);
+    }
+
+    @Override
     public UserAuthenticationDto update(UserUpdateDto user, Principal principal) {
         User currentUser = getCurrentUser(principal);
 
@@ -70,7 +87,7 @@ public class UserServiceDefault implements UserService {
 
     @Override
     public User getCurrentUser(Principal principal) {
-        return userRepo.findUserById(Long.parseLong(principal.getName()))
+        return userRepo.findById(Long.parseLong(principal.getName()))
                 //todo custom exception
                 .orElseThrow(RuntimeException::new);
     }

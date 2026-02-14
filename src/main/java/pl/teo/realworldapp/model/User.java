@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter @Setter @NoArgsConstructor
 @JsonRootName("user")
 @Entity
@@ -19,6 +21,8 @@ public class User {
     private String password;
     private String bio;
     private String image;
+    @ManyToMany
+    private List<User> followed;
 
 
 
