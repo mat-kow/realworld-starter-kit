@@ -71,6 +71,17 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
+    public Profile unfollowProfile(String profileName, Principal principal) {
+        User currentUser = getCurrentUser(principal);
+        User toFollow = userRepo.findUserByUsername(profileName)
+                //todo custom exception
+                .orElseThrow(() -> new RuntimeException("User does not exists"));
+        currentUser.getFollowed().remove(toFollow);
+        userRepo.save(currentUser);
+        return mapper.map(toFollow, Profile.class);
+    }
+
+    @Override
     public UserAuthenticationDto update(UserUpdateDto user, Principal principal) {
         User currentUser = getCurrentUser(principal);
 

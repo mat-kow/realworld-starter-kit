@@ -28,6 +28,10 @@ public class ProfileController {
         return getProfileMapWrapper(userService.followProfile(username, principal));
     }
 
+    @DeleteMapping("/{username}/follow")
+    public Map<String, Profile> unfollowProfile(@PathVariable String username, Principal principal) {
+        return getProfileMapWrapper(userService.unfollowProfile(username, principal));
+    }
 
     private Map<String, Profile> getProfileMapWrapper(Profile profile) {
         Map<String, Profile> map = new HashMap<>();

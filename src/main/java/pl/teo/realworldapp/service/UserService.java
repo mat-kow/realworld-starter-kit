@@ -13,4 +13,5 @@ public interface UserService {
     UserAuthenticationDto login(UserLoginDto userLoginDto);
     Profile getProfileByUsername(String username);
     Profile followProfile(String profileName, Principal principal);
+    Profile unfollowProfile(String username, Principal principal);
 }
