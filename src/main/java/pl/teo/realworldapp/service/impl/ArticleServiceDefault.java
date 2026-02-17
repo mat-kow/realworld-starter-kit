@@ -14,6 +14,8 @@ import pl.teo.realworldapp.service.UserService;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,52 @@ public class ArticleServiceDefault implements ArticleService {
         article.setAuthor(user);
         Article saved = articleRepo.save(article);
         return mapper.map(saved, ArticleViewDto.class);
+    }
+
+    @Override
+    public ArticleViewDto getArticle(String slug) {
+        //todo 404
+        Article article = articleRepo.getArticleBySlug(slug).orElseThrow(() -> new RuntimeException("Article not found"));
+        return mapper.map(article, ArticleViewDto.class);
+    }
+
+    @Override
+    public List<ArticleViewDto> getAll(int limit, int offset) {
+        return articleRepo.getAll(limit, offset).stream()
+                .map(a -> mapper.map(a, ArticleViewDto.class))
+                .toList();
+    }
+
+    @Override
+    public List<ArticleViewDto> getByTag(int limit, int offset, String tag) {
+        return articleRepo.getArticlesByTag(tag, limit, offset).stream()
+                .map(a -> mapper.map(a, ArticleViewDto.class))
+                .toList();
+    }
+
+    @Override
+    public List<ArticleViewDto> getByAuthor(int limit, int offset, String authorName) {
+        return articleRepo.getArticlesByAuthorName(authorName, limit, offset).stream()
+                .map(a -> mapper.map(a, ArticleViewDto.class))
+                .toList();
+    }
+
+    @Override
+    public List<ArticleViewDto> getByFollowedAuthors(int limit, int offset, Principal principal) {
+        List<User> followed = userService.getCurrentUser(principal).getFollowed();
+        return followed.stream()
+                .map(User::getUsername)
+                .map(authorName -> articleRepo.getArticlesByTag(authorName, limit, offset))
+                .flatMap(Collection::stream)
+                .map(a -> mapper.map(a, ArticleViewDto.class))
+                .toList();
+    }
+
+    @Override
+    public List<ArticleViewDto> getByFavorited(int limit, int offset, String favoritedUserName) {
+        return articleRepo.getArticlesByAuthorName(favoritedUserName, limit, offset).stream()
+                .map(a -> mapper.map(a, ArticleViewDto.class))
+                .toList();
     }
 
     private String generateSlug(String title) {

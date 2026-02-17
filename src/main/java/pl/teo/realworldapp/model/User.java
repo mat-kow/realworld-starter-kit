@@ -23,6 +23,8 @@ public class User {
     private String image;
     @ManyToMany
     private List<User> followed;
+    @ManyToMany
+    private List<Article> favArticles;
 
 
 
