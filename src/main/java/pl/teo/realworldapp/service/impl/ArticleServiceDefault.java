@@ -114,7 +114,7 @@ public class ArticleServiceDefault implements ArticleService {
     @Transactional
     public CommentViewDto addComment(String slug, CommentCreateDto commentCreateDto) {
         Article article = getArticleBySlug(slug);
-        Comment comment = new Comment(commentCreateDto.getBody(), LocalDateTime.now(), LocalDateTime.now(), userService.getCurrentUser());
+        Comment comment = new Comment(commentCreateDto.getBody(), LocalDateTime.now(), LocalDateTime.now(), userService.getCurrentUser(), article);
         Comment saved = commentRepository.save(comment);
         article.getComments().add(saved);
         articleRepo.save(article);
@@ -123,6 +123,8 @@ public class ArticleServiceDefault implements ArticleService {
 
     @Override
     public List<CommentViewDto> getComments(String slug) {
+        if (!articleRepo.existsBySlug(slug))
+            throw new ApiNotFoundException("Article doesn't exists!");
         List<Comment> commentsBySlug = articleRepo.findCommentsBySlug(slug);
         return commentsBySlug.stream().map(c -> mapper.map(c, CommentViewDto.class)).toList();
     }

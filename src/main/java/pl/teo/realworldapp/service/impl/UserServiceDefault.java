@@ -6,7 +6,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.teo.realworldapp.app.exception.ApiNonUniqueValueException;
 import pl.teo.realworldapp.app.exception.ApiNotFoundException;
+import pl.teo.realworldapp.app.exception.ApiUnAuthorizedException;
 import pl.teo.realworldapp.app.jwt.JwtBuilder;
 import pl.teo.realworldapp.model.entity.User;
 import pl.teo.realworldapp.model.dto.*;
@@ -25,9 +27,8 @@ public class UserServiceDefault implements UserService {
 
     @Override
     public UserAuthenticationDto register(UserRegisterDto registerDto) {
-        if (userRepo.existsByEmailOrUsername(registerDto.getUsername(), registerDto.getEmail())) {
-            //todo custom exception
-            throw new RuntimeException();
+        if (userRepo.existsByEmailOrUsernameIgnoreCase(registerDto.getEmail(), registerDto.getUsername())) {
+            throw new ApiNonUniqueValueException("duplicated username or email");
         }
         registerDto.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         User savedUser = userRepo.save(mapper.map(registerDto, User.class));
@@ -46,8 +47,7 @@ public class UserServiceDefault implements UserService {
         if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             return getUserAuthenticationDto(user);
         }
-        //todo return "Forbidden"
-        return null;
+        throw  new ApiUnAuthorizedException("wrong password");
     }
 
     @Override

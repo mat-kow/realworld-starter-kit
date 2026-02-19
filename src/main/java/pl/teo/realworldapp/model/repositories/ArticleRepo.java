@@ -53,4 +53,6 @@ public interface ArticleRepo extends CrudRepository<Article, Long> {
             value = "SELECT ARTICLES.TAGLIST FROM ARTICLES"
     )
     List<List<String>> getAllTags();
+
+    boolean existsBySlug(String slug);
 }

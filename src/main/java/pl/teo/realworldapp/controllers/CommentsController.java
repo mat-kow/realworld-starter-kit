@@ -1,5 +1,6 @@
 package pl.teo.realworldapp.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.teo.realworldapp.model.dto.CommentCreateDto;
@@ -22,9 +23,9 @@ public class CommentsController {
     }
 
     @PostMapping
-    public Map<String, Object> create(@PathVariable String slug, @RequestBody CommentCreateDto commentCreateDto) {
+    public ResponseEntity<Map<String, Object>> create(@PathVariable String slug, @RequestBody @Valid CommentCreateDto commentCreateDto) {
         CommentViewDto commentViewDto = articleService.addComment(slug, commentCreateDto);
-        return getCommentMapWrapper(commentViewDto);
+        return ResponseEntity.status(201).body(getCommentMapWrapper(commentViewDto));
     }
 
     @GetMapping
@@ -36,7 +37,7 @@ public class CommentsController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteComment(@PathVariable String slug, @PathVariable long id) {
         articleService.deleteComment(slug, id);
-        return ResponseEntity.status(205).build();
+        return ResponseEntity.status(204).build();
     }
 
     private Map<String, Object> getCommentMapWrapper(Object object) {

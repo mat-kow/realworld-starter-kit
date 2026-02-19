@@ -1,5 +1,6 @@
 package pl.teo.realworldapp.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody UserRegisterDto user) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody @Valid UserRegisterDto user) {
         return ResponseEntity.status(201).body(getUserMapWrapper(userService.register(user)));
     }
 
     @PostMapping("/users/login")
-    public Map<String, Object> login(@RequestBody UserLoginDto loginDto) {
+    public Map<String, Object> login(@RequestBody @Valid UserLoginDto loginDto) {
         return getUserMapWrapper(userService.login(loginDto));
     }
 
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping("/user")
-    public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto, Principal principal) {
+    public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         return getUserMapWrapper(userService.update(userUpdateDto));
     }
 

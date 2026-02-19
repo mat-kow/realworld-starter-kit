@@ -6,7 +6,7 @@ import pl.teo.realworldapp.model.entity.User;
 import java.util.Optional;
 
 public interface UserRepo extends CrudRepository<User, Long> {
-    boolean existsByEmailOrUsername(String username, String email);
+    boolean existsByEmailOrUsernameIgnoreCase(String email, String username);
     Optional<User> findUserByEmailIgnoreCase(String email);
     Optional<User> findUserByUsername(String username);
 }

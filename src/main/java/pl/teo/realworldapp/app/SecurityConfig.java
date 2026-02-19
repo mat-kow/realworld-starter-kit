@@ -1,6 +1,7 @@
 package pl.teo.realworldapp.app;
 
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -27,10 +28,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/articles/*", "/api/articles").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/articles/*/comments").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
-                        .requestMatchers( "/error/**").permitAll()
+                        .requestMatchers("/error/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtRequestFilter(secretKey()), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtRequestFilter(secretKey()), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, ex1) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
+        ;
 
         return http.build();
     }

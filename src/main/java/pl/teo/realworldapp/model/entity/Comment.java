@@ -27,10 +27,23 @@ public class Comment {
     private Article article;
 
 
-    public Comment(String body, LocalDateTime createdAt, LocalDateTime updatedAt, User author) {
+    public Comment(String body, LocalDateTime createdAt, LocalDateTime updatedAt, User author, Article article) {
         this.body = body;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.author = author;
+        this.article = article;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", body='" + body + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", author=" + author +
+                ", article=" + article +
+                '}';
     }
 }
