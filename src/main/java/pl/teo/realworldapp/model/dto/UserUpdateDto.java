@@ -1,7 +1,6 @@
 package pl.teo.realworldapp.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

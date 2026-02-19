@@ -1,4 +1,4 @@
-package pl.teo.realworldapp.model;
+package pl.teo.realworldapp.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.persistence.*;

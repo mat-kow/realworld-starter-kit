@@ -1,4 +1,4 @@
-package pl.teo.realworldapp.model;
+package pl.teo.realworldapp.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,4 +25,7 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User author;
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
 }

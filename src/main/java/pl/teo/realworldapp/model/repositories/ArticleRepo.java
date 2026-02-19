@@ -2,7 +2,8 @@ package pl.teo.realworldapp.model.repositories;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import pl.teo.realworldapp.model.Article;
+import pl.teo.realworldapp.model.entity.Article;
+import pl.teo.realworldapp.model.entity.Comment;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,4 +43,14 @@ public interface ArticleRepo extends CrudRepository<Article, Long> {
             nativeQuery = true
     )
     List<Article> getArticlesByFavorited(String userName, int limit, int offset);
+
+    void deleteArticleBySlug(String slug);
+
+    @Query("SELECT a.comments FROM Article a WHERE a.slug = ?1")
+    List<Comment> findCommentsBySlug(String slug);
+
+    @Query(nativeQuery = true,
+            value = "SELECT ARTICLES.TAGLIST FROM ARTICLES"
+    )
+    List<List<String>> getAllTags();
 }

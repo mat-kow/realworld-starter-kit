@@ -31,13 +31,13 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public Map<String, Object> getUser(Principal principal) {
-        return getUserMapWrapper(userService.getCurrentDto(principal));
+    public Map<String, Object> getUser() {
+        return getUserMapWrapper(userService.getCurrentDto());
     }
 
     @PutMapping("/user")
     public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto, Principal principal) {
-        return getUserMapWrapper(userService.update(userUpdateDto, principal));
+        return getUserMapWrapper(userService.update(userUpdateDto));
     }
 
     private Map<String, Object> getUserMapWrapper(Object object) {

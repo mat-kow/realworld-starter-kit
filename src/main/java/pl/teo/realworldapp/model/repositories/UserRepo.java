@@ -1,7 +1,7 @@
 package pl.teo.realworldapp.model.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import pl.teo.realworldapp.model.User;
+import pl.teo.realworldapp.model.entity.User;
 
 import java.util.Optional;
 

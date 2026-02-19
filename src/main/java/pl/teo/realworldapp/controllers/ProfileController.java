@@ -1,12 +1,10 @@
 package pl.teo.realworldapp.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.teo.realworldapp.model.dto.Profile;
 import pl.teo.realworldapp.service.UserService;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +22,13 @@ public class ProfileController {
     }
 
     @PostMapping("/{username}/follow")
-    public Map<String, Profile> followProfile(@PathVariable String username, Principal principal) {
-        return getProfileMapWrapper(userService.followProfile(username, principal));
+    public Map<String, Profile> followProfile(@PathVariable String username) {
+        return getProfileMapWrapper(userService.followProfile(username));
     }
 
     @DeleteMapping("/{username}/follow")
-    public Map<String, Profile> unfollowProfile(@PathVariable String username, Principal principal) {
-        return getProfileMapWrapper(userService.unfollowProfile(username, principal));
+    public Map<String, Profile> unfollowProfile(@PathVariable String username) {
+        return getProfileMapWrapper(userService.unfollowProfile(username));
     }
 
     private Map<String, Profile> getProfileMapWrapper(Profile profile) {

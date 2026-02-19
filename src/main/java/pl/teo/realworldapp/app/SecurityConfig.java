@@ -4,9 +4,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,6 +25,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users", "/api/users/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/profiles/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/articles/*", "/api/articles").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/articles/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtRequestFilter(secretKey()), UsernamePasswordAuthenticationFilter.class);

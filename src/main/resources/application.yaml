@@ -16,3 +16,6 @@ spring:
   Jackson:
     deserialization:
       unwrap-root-value: true
+
+server:
+  port: 8000

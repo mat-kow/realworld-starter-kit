@@ -2,10 +2,11 @@ package pl.teo.realworldapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.teo.realworldapp.app.jwt.JwtBuilder;
-import pl.teo.realworldapp.model.User;
+import pl.teo.realworldapp.model.entity.User;
 import pl.teo.realworldapp.model.dto.*;
 import pl.teo.realworldapp.model.repositories.UserRepo;
 import pl.teo.realworldapp.service.UserService;
@@ -32,8 +33,8 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public UserAuthenticationDto getCurrentDto(Principal principal) {
-        return mapper.map(getCurrentUser(principal), UserAuthenticationDto.class);
+    public UserAuthenticationDto getCurrentDto() {
+        return mapper.map(getCurrentUser(), UserAuthenticationDto.class);
     }
 
     @Override
@@ -60,8 +61,8 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public Profile followProfile(String profileName, Principal principal) {
-        User currentUser = getCurrentUser(principal);
+    public Profile followProfile(String profileName) {
+        User currentUser = getCurrentUser();
         User toFollow = userRepo.findUserByUsername(profileName)
                 //todo custom exception
                 .orElseThrow(() -> new RuntimeException("User does not exists"));
@@ -71,8 +72,8 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public Profile unfollowProfile(String profileName, Principal principal) {
-        User currentUser = getCurrentUser(principal);
+    public Profile unfollowProfile(String profileName) {
+        User currentUser = getCurrentUser();
         User toFollow = userRepo.findUserByUsername(profileName)
                 //todo custom exception
                 .orElseThrow(() -> new RuntimeException("User does not exists"));
@@ -82,8 +83,13 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public UserAuthenticationDto update(UserUpdateDto user, Principal principal) {
-        User currentUser = getCurrentUser(principal);
+    public void update(User user) {
+        userRepo.save(user);
+    }
+
+    @Override
+    public UserAuthenticationDto update(UserUpdateDto user) {
+        User currentUser = getCurrentUser();
 
         if (user.getUsername() != null) currentUser.setUsername(user.getUsername());
         if (user.getEmail() != null) currentUser.setEmail(user.getEmail());
@@ -97,7 +103,8 @@ public class UserServiceDefault implements UserService {
     }
 
     @Override
-    public User getCurrentUser(Principal principal) {
+    public User getCurrentUser() {
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
         return userRepo.findById(Long.parseLong(principal.getName()))
                 //todo custom exception
                 .orElseThrow(RuntimeException::new);
