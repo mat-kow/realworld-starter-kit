@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.teo.realworldapp.app.exception.ApiNotFoundException;
 import pl.teo.realworldapp.app.jwt.JwtBuilder;
 import pl.teo.realworldapp.model.entity.User;
 import pl.teo.realworldapp.model.dto.*;
@@ -41,8 +42,7 @@ public class UserServiceDefault implements UserService {
     @Override
     public UserAuthenticationDto login(UserLoginDto userLoginDto) {
         User user = userRepo.findUserByEmailIgnoreCase(userLoginDto.getEmail())
-                //todo custom exception
-                .orElseThrow(() -> new RuntimeException("User does not exists"));
+                .orElseThrow(() -> new ApiNotFoundException("User does not exists"));
         if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             return getUserAuthenticationDto(user);
         }
@@ -53,8 +53,7 @@ public class UserServiceDefault implements UserService {
     @Override
     public Profile getProfileByUsername(String username) {
         User user = userRepo.findUserByUsername(username)
-                //todo custom exception
-                .orElseThrow(() -> new RuntimeException("User does not exists"));
+                .orElseThrow(() -> new ApiNotFoundException("User does not exists"));
 
         return mapper.map(user, Profile.class);
     }
@@ -63,8 +62,7 @@ public class UserServiceDefault implements UserService {
     public Profile followProfile(String profileName) {
         User currentUser = getCurrentUser();
         User toFollow = userRepo.findUserByUsername(profileName)
-                //todo custom exception
-                .orElseThrow(() -> new RuntimeException("User does not exists"));
+                .orElseThrow(() -> new ApiNotFoundException("User does not exists"));
         currentUser.getFollowed().add(toFollow);
         userRepo.save(currentUser);
         return mapper.map(toFollow, Profile.class);
@@ -74,8 +72,7 @@ public class UserServiceDefault implements UserService {
     public Profile unfollowProfile(String profileName) {
         User currentUser = getCurrentUser();
         User toFollow = userRepo.findUserByUsername(profileName)
-                //todo custom exception
-                .orElseThrow(() -> new RuntimeException("User does not exists"));
+                .orElseThrow(() -> new ApiNotFoundException("User does not exists"));
         currentUser.getFollowed().remove(toFollow);
         userRepo.save(currentUser);
         return mapper.map(toFollow, Profile.class);
@@ -103,8 +100,7 @@ public class UserServiceDefault implements UserService {
     public User getCurrentUser() {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         return userRepo.findById(Long.parseLong(principal.getName()))
-                //todo custom exception
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new ApiNotFoundException("User doesn't exists!"));
     }
 
     private UserAuthenticationDto getUserAuthenticationDto(User user) {

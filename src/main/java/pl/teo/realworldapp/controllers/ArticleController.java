@@ -39,7 +39,7 @@ public class ArticleController {
     @DeleteMapping("{slug}")
     public ResponseEntity deleteArticle(@PathVariable String slug) {
         articleService.delete(slug);
-        return ResponseEntity.status(205).build();
+        return ResponseEntity.status(204).build();
     }
 
     @GetMapping

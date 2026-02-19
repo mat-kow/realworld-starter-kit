@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import pl.teo.realworldapp.app.exception.ApiNotFoundException;
 import pl.teo.realworldapp.model.dto.CommentCreateDto;
 import pl.teo.realworldapp.model.dto.CommentViewDto;
 import pl.teo.realworldapp.model.entity.Article;
@@ -65,6 +66,7 @@ public class ArticleServiceDefault implements ArticleService {
     }
 
     @Override
+    @Transactional
     public void delete(String slug) {
         articleRepo.deleteArticleBySlug(slug);
     }
@@ -127,8 +129,8 @@ public class ArticleServiceDefault implements ArticleService {
 
     @Override
     public void deleteComment(String slug, long id) {
-        //todo 404
-        Comment comment = commentRepository.findById(id).orElseThrow();
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ApiNotFoundException("Comment doesn't exists!"));
         if (Objects.equals(comment.getAuthor().getId(), userService.getCurrentUser().getId())) {
             commentRepository.delete(comment);
         }
@@ -177,8 +179,8 @@ public class ArticleServiceDefault implements ArticleService {
     }
 
     private @NonNull Article getArticleBySlug(String slug) {
-        //todo 404
-        return articleRepo.getArticleBySlug(slug).orElseThrow(() -> new RuntimeException("Article not found"));
+        return articleRepo.getArticleBySlug(slug)
+                .orElseThrow(() -> new ApiNotFoundException("Article doesn't exists!"));
     }
 
 }

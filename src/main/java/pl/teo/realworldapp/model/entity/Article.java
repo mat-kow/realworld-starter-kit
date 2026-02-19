@@ -26,6 +26,12 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User author;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+
+    @OneToMany(
+            mappedBy = "article",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private List<Comment> comments;
 }
