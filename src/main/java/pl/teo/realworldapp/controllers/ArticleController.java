@@ -8,6 +8,7 @@ import pl.teo.realworldapp.model.dto.ArticleViewDto;
 import pl.teo.realworldapp.service.ArticleService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,9 +19,9 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping("")
-    public Map<String, Object> createArticle(@RequestBody ArticleCreateDto articleCreateDto) {
+    public ResponseEntity<Map<String, Object>> createArticle(@RequestBody ArticleCreateDto articleCreateDto) {
         ArticleViewDto articleViewDto = articleService.create(articleCreateDto);
-        return getArticleMapWrapper(articleViewDto);
+        return ResponseEntity.status(201).body(getArticleMapWrapper(articleViewDto));
     }
 
     @GetMapping("{slug}")
@@ -41,32 +42,32 @@ public class ArticleController {
         return ResponseEntity.status(205).build();
     }
 
-//    @GetMapping
-//    public Map<String, Object> listArticles(@RequestParam(required = false) String tag,
-//                                            @RequestParam(required = false) String author,
-//                                            @RequestParam(required = false) String favorited,
-//                                            @RequestParam(defaultValue = "20") int limit,
-//                                            @RequestParam(defaultValue = "0") int offset
-//                                            ) {
-//        List<ArticleViewDto> list;
-//        if (tag != null) {
-//            list = articleService.getByTag(limit, offset, tag);
-//        } else if (author != null) {
-//            list = articleService.getByAuthor(limit, offset, author);
-//        } else if (favorited != null) {
-//            list = articleService.getByAuthor(limit, offset, favorited);
-//        } else {
-//            list = articleService.getAll(limit, offset);
-//        }
-//        return Map.of("articles", list);
-//    }
-//
-//    @GetMapping("/feed")
-//    public Map<String, Object> feed(@RequestParam(defaultValue = "20") int limit,
-//                                    @RequestParam(defaultValue = "0") int offset) {
-//        List<ArticleViewDto> list = articleService.getByFollowedAuthors(limit, offset);
-//        return Map.of("articles", list);
-//    }
+    @GetMapping
+    public Map<String, Object> listArticles(@RequestParam(required = false) String tag,
+                                            @RequestParam(required = false) String author,
+                                            @RequestParam(required = false) String favorited,
+                                            @RequestParam(defaultValue = "20") int limit,
+                                            @RequestParam(defaultValue = "0") int offset
+                                            ) {
+        List<ArticleViewDto> list;
+        if (tag != null) {
+            list = articleService.getByTag(limit, offset, tag);
+        } else if (author != null) {
+            list = articleService.getByAuthor(limit, offset, author);
+        } else if (favorited != null) {
+            list = articleService.getByAuthor(limit, offset, favorited);
+        } else {
+            list = articleService.getAll(limit, offset);
+        }
+        return Map.of("articles", list);
+    }
+
+    @GetMapping("/feed")
+    public Map<String, Object> feed(@RequestParam(defaultValue = "20") int limit,
+                                    @RequestParam(defaultValue = "0") int offset) {
+        List<ArticleViewDto> list = articleService.getByFollowedAuthors(limit, offset);
+        return Map.of("articles", list);
+    }
 
     @PostMapping("/{slug}/favorite")
     public Map<String, Object> favArticle(@PathVariable String slug) {

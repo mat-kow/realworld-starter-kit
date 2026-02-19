@@ -19,10 +19,7 @@ import pl.teo.realworldapp.service.ArticleService;
 import pl.teo.realworldapp.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -166,7 +163,17 @@ public class ArticleServiceDefault implements ArticleService {
         Slugify slg = Slugify.builder()
                 .lowerCase(true)
                 .build();
-        return slg.slugify(title);
+        return slg.slugify(title) + randomAlphaNum(6);
+    }
+
+    private static String randomAlphaNum(int size) {
+        char[] result = new char[size];
+        String chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            result[i] = chars.charAt(random.nextInt(chars.length()));
+        }
+        return String.copyValueOf(result);
     }
 
     private @NonNull Article getArticleBySlug(String slug) {

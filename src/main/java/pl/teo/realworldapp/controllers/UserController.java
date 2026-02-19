@@ -2,6 +2,7 @@ package pl.teo.realworldapp.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.teo.realworldapp.model.dto.UserLoginDto;
 import pl.teo.realworldapp.model.dto.UserRegisterDto;
@@ -21,8 +22,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users")
-    public Map<String, Object> register(@RequestBody UserRegisterDto user) {
-        return getUserMapWrapper(userService.register(user));
+    public ResponseEntity<Map<String, Object>> register(@RequestBody UserRegisterDto user) {
+        return ResponseEntity.status(201).body(getUserMapWrapper(userService.register(user)));
     }
 
     @PostMapping("/users/login")

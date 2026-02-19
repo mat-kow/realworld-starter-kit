@@ -1,6 +1,7 @@
 package pl.teo.realworldapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,12 +30,12 @@ public class UserServiceDefault implements UserService {
         }
         registerDto.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         User savedUser = userRepo.save(mapper.map(registerDto, User.class));
-        return mapper.map(savedUser, UserAuthenticationDto.class);
+        return getUserAuthenticationDto(savedUser);
     }
 
     @Override
     public UserAuthenticationDto getCurrentDto() {
-        return mapper.map(getCurrentUser(), UserAuthenticationDto.class);
+        return getUserAuthenticationDto(getCurrentUser());
     }
 
     @Override
@@ -43,9 +44,7 @@ public class UserServiceDefault implements UserService {
                 //todo custom exception
                 .orElseThrow(() -> new RuntimeException("User does not exists"));
         if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-            UserAuthenticationDto authenticationDto = mapper.map(user, UserAuthenticationDto.class);
-            authenticationDto.setToken(jwtBuilder.getToken(String.valueOf(user.getId())));
-            return authenticationDto;
+            return getUserAuthenticationDto(user);
         }
         //todo return "Forbidden"
         return null;
@@ -97,9 +96,7 @@ public class UserServiceDefault implements UserService {
         if (user.getBio() != null) currentUser.setBio(user.getBio());
         if (user.getImage() != null) currentUser.setImage(user.getImage());
 
-        return mapper.map(
-                userRepo.save(currentUser),
-                UserAuthenticationDto.class);
+        return getUserAuthenticationDto(userRepo.save(currentUser));
     }
 
     @Override
@@ -108,6 +105,12 @@ public class UserServiceDefault implements UserService {
         return userRepo.findById(Long.parseLong(principal.getName()))
                 //todo custom exception
                 .orElseThrow(RuntimeException::new);
+    }
+
+    private UserAuthenticationDto getUserAuthenticationDto(User user) {
+        UserAuthenticationDto dto = mapper.map(user, UserAuthenticationDto.class);
+        dto.setToken(jwtBuilder.getToken(String.valueOf(user.getId())));
+        return dto;
     }
 }
 
