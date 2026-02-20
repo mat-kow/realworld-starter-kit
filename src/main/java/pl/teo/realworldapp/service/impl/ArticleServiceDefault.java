@@ -3,14 +3,13 @@ package pl.teo.realworldapp.service.impl;
 import com.github.slugify.Slugify;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import pl.teo.realworldapp.app.exception.ApiForbiddenException;
+import pl.teo.realworldapp.app.exception.ApiNonUniqueValueException;
 import pl.teo.realworldapp.app.exception.ApiNotFoundException;
-import pl.teo.realworldapp.model.dto.CommentCreateDto;
-import pl.teo.realworldapp.model.dto.CommentViewDto;
+import pl.teo.realworldapp.app.exception.ApiUnAuthorizedException;
 import pl.teo.realworldapp.model.entity.Article;
-import pl.teo.realworldapp.model.entity.Comment;
 import pl.teo.realworldapp.model.entity.User;
 import pl.teo.realworldapp.model.dto.ArticleCreateDto;
 import pl.teo.realworldapp.model.dto.ArticleViewDto;
@@ -30,10 +29,11 @@ public class ArticleServiceDefault implements ArticleService {
     private final ArticleRepo articleRepo;
     private final ModelMapper mapper;
     private final UserService userService;
-    private final CommentRepository commentRepository;
 
     @Override
     public ArticleViewDto create(ArticleCreateDto articleCreateDto) {
+        if (articleRepo.existsByTitleIgnoreCase(articleCreateDto.getTitle()))
+            throw new ApiNonUniqueValueException("Article with that title already exists");
         Article article = mapper.map(articleCreateDto, Article.class);
         LocalDateTime now = LocalDateTime.now();
         article.setCreatedAt(now);
@@ -54,6 +54,9 @@ public class ArticleServiceDefault implements ArticleService {
     @Override
     public ArticleViewDto updateArticle(String slug, ArticleCreateDto articleCreateDto) {
         Article article = getArticleBySlug(slug);
+        if (!article.getAuthor().getId().equals(userService.getCurrentUser().getId()))
+            throw new ApiForbiddenException("You can update only your articles");
+
         if (articleCreateDto.getTitle() != null) {
             article.setTitle(articleCreateDto.getTitle());
             article.setSlug(generateSlug(article.getTitle()));
@@ -68,7 +71,12 @@ public class ArticleServiceDefault implements ArticleService {
     @Override
     @Transactional
     public void delete(String slug) {
-        articleRepo.deleteArticleBySlug(slug);
+        Article article = articleRepo.getArticleBySlug(slug)
+                .orElseThrow(() -> new ApiNotFoundException("There is no article with that slug"));
+        if (article.getAuthor().getId().equals(userService.getCurrentUser().getId()))
+            articleRepo.deleteArticleBySlug(slug);
+        else
+            throw new ApiForbiddenException("You can delete only your articles");
     }
 
     @Override
@@ -94,7 +102,13 @@ public class ArticleServiceDefault implements ArticleService {
 
     @Override
     public List<ArticleViewDto> getByFollowedAuthors(int limit, int offset) {
-        List<User> followed = userService.getCurrentUser().getFollowed();
+        User currentUser;
+        try {
+            currentUser = userService.getCurrentUser();
+        } catch (ApiNotFoundException e) {
+            throw new ApiUnAuthorizedException("You need to be logged in");
+        }
+        List<User> followed = currentUser.getFollowed();
         return followed.stream()
                 .map(User::getUsername)
                 .map(authorName -> articleRepo.getArticlesByTag(authorName, limit, offset))
@@ -110,33 +124,6 @@ public class ArticleServiceDefault implements ArticleService {
                 .toList();
     }
 
-    @Override
-    @Transactional
-    public CommentViewDto addComment(String slug, CommentCreateDto commentCreateDto) {
-        Article article = getArticleBySlug(slug);
-        Comment comment = new Comment(commentCreateDto.getBody(), LocalDateTime.now(), LocalDateTime.now(), userService.getCurrentUser(), article);
-        Comment saved = commentRepository.save(comment);
-        article.getComments().add(saved);
-        articleRepo.save(article);
-        return mapper.map(saved, CommentViewDto.class);
-    }
-
-    @Override
-    public List<CommentViewDto> getComments(String slug) {
-        if (!articleRepo.existsBySlug(slug))
-            throw new ApiNotFoundException("Article doesn't exists!");
-        List<Comment> commentsBySlug = articleRepo.findCommentsBySlug(slug);
-        return commentsBySlug.stream().map(c -> mapper.map(c, CommentViewDto.class)).toList();
-    }
-
-    @Override
-    public void deleteComment(String slug, long id) {
-        Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ApiNotFoundException("Comment doesn't exists!"));
-        if (Objects.equals(comment.getAuthor().getId(), userService.getCurrentUser().getId())) {
-            commentRepository.delete(comment);
-        }
-    }
 
     @Override
     public ArticleViewDto addToFavorite(String slug) {
@@ -180,7 +167,7 @@ public class ArticleServiceDefault implements ArticleService {
         return String.copyValueOf(result);
     }
 
-    private @NonNull Article getArticleBySlug(String slug) {
+    private Article getArticleBySlug(String slug) {
         return articleRepo.getArticleBySlug(slug)
                 .orElseThrow(() -> new ApiNotFoundException("Article doesn't exists!"));
     }

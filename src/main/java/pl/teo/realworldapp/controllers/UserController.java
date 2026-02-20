@@ -2,7 +2,6 @@ package pl.teo.realworldapp.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.teo.realworldapp.model.dto.UserLoginDto;
@@ -10,7 +9,6 @@ import pl.teo.realworldapp.model.dto.UserRegisterDto;
 import pl.teo.realworldapp.model.dto.UserUpdateDto;
 import pl.teo.realworldapp.service.UserService;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +17,6 @@ import java.util.Map;
 @RequestMapping("/api")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
 
     @PostMapping("/users")

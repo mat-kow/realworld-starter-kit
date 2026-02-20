@@ -1,5 +1,6 @@
 package pl.teo.realworldapp.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,13 +11,10 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/tags")
+@RequiredArgsConstructor
 public class TagsController {
 
     private final ArticleService articleService;
-
-    public TagsController(ArticleService articleService) {
-        this.articleService = articleService;
-    }
 
     @GetMapping()
     public Map<String, Set<String>> getTags() {

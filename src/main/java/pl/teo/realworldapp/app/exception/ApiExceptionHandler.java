@@ -54,4 +54,15 @@ public class ApiExceptionHandler {
         );
         return new ResponseEntity<>(apiException, status);
     }
+
+    @ExceptionHandler(ApiForbiddenException.class)
+    public ResponseEntity<Object> handleApiForbiddenException(ApiForbiddenException e) {
+        HttpStatus status = HttpStatus.resolve(403);
+        ApiException apiException = new ApiException(
+                e.getMessage(),
+                status,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(apiException, status);
+    }
 }

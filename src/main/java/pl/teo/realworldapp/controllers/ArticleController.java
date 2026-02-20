@@ -1,5 +1,6 @@
 package pl.teo.realworldapp.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping("")
-    public ResponseEntity<Map<String, Object>> createArticle(@RequestBody ArticleCreateDto articleCreateDto) {
+    public ResponseEntity<Map<String, Object>> createArticle(@RequestBody @Valid ArticleCreateDto articleCreateDto) {
         ArticleViewDto articleViewDto = articleService.create(articleCreateDto);
         return ResponseEntity.status(201).body(getArticleMapWrapper(articleViewDto));
     }

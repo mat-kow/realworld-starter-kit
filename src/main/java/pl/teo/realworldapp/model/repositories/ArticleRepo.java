@@ -55,4 +55,6 @@ public interface ArticleRepo extends CrudRepository<Article, Long> {
     List<List<String>> getAllTags();
 
     boolean existsBySlug(String slug);
+
+    boolean existsByTitleIgnoreCase(String title);
 }

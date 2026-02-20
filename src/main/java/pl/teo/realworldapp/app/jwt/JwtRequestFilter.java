@@ -31,7 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader == null/* || authorizationHeader.equals("Token null")*/ || !authorizationHeader.startsWith("Token ")) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Token ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -42,10 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-//        Jws<Claims> claimsJws = Jwts.parser()
-//                .setSigningKey(secretKey)
-//                .build()
-//                .parseClaimsJws(token);
+
         String username = claims.getSubject();
         List<Map<String, String>> authorities = (List<Map<String, String>>) claims.get("authorities");
         Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()

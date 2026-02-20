@@ -1,7 +1,6 @@
 package pl.teo.realworldapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -99,13 +98,14 @@ public class UserServiceDefault implements UserService {
     @Override
     public User getCurrentUser() {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        return userRepo.findById(Long.parseLong(principal.getName()))
+        String name = principal.getName();
+        return userRepo.findUserByUsername(name)
                 .orElseThrow(() -> new ApiNotFoundException("User doesn't exists!"));
     }
 
     private UserAuthenticationDto getUserAuthenticationDto(User user) {
         UserAuthenticationDto dto = mapper.map(user, UserAuthenticationDto.class);
-        dto.setToken(jwtBuilder.getToken(String.valueOf(user.getId())));
+        dto.setToken(jwtBuilder.getToken(user.getUsername()));
         return dto;
     }
 }
