@@ -25,23 +25,21 @@ public class UserController {
     }
 
     @PostMapping("/users/login")
-    public Map<String, Object> login(@RequestBody @Valid UserLoginDto loginDto) {
-        return getUserMapWrapper(userService.login(loginDto));
+    public ResponseEntity<Map<String, Object>> login(@RequestBody @Valid UserLoginDto loginDto) {
+        return ResponseEntity.ok(getUserMapWrapper(userService.login(loginDto)));
     }
 
     @GetMapping("/user")
-    public Map<String, Object> getUser() {
-        return getUserMapWrapper(userService.getCurrentDto());
+    public ResponseEntity<Map<String, Object>> getUser() {
+        return ResponseEntity.ok(getUserMapWrapper(userService.getCurrentDto()));
     }
 
     @PutMapping("/user")
-    public Map<String, Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
-        return getUserMapWrapper(userService.update(userUpdateDto));
+    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+        return ResponseEntity.ok(getUserMapWrapper(userService.update(userUpdateDto)));
     }
 
     private Map<String, Object> getUserMapWrapper(Object object) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("user", object);
-        return map;
+        return Map.of("user", object);
     }
 }

@@ -27,13 +27,13 @@ public class CommentsController {
     }
 
     @GetMapping
-    public Map<String, Object> getComments(@PathVariable String slug) {
+    public ResponseEntity<Map<String, Object>> getComments(@PathVariable String slug) {
         List<CommentViewDto> list = commentService.getComments(slug);
-        return Map.of("comments", list);
+        return ResponseEntity.ok(Map.of("comments", list));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteComment(@PathVariable String slug, @PathVariable long id) {
+    public ResponseEntity<Object> deleteComment(@PathVariable String slug, @PathVariable long id) {
         commentService.deleteComment(slug, id);
         return ResponseEntity.status(204).build();
     }

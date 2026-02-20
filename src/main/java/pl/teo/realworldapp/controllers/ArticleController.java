@@ -8,7 +8,6 @@ import pl.teo.realworldapp.model.dto.ArticleCreateDto;
 import pl.teo.realworldapp.model.dto.ArticleViewDto;
 import pl.teo.realworldapp.service.ArticleService;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,25 +25,25 @@ public class ArticleController {
     }
 
     @GetMapping("{slug}")
-    public Map<String, Object> getArticle(@PathVariable String slug) {
+    public ResponseEntity<Map<String, Object>> getArticle(@PathVariable String slug) {
         ArticleViewDto articleViewDto = articleService.getArticle(slug);
-        return getArticleMapWrapper(articleViewDto);
+        return ResponseEntity.ok(getArticleMapWrapper(articleViewDto));
     }
 
     @PutMapping("{slug}")
-    public Map<String, Object> updateArticle(@PathVariable String slug, @RequestBody ArticleCreateDto articleCreateDto) {
+    public ResponseEntity<Map<String, Object>> updateArticle(@PathVariable String slug, @RequestBody ArticleCreateDto articleCreateDto) {
         ArticleViewDto articleViewDto = articleService.updateArticle(slug, articleCreateDto);
-        return getArticleMapWrapper(articleViewDto);
+        return ResponseEntity.ok(getArticleMapWrapper(articleViewDto));
     }
 
     @DeleteMapping("{slug}")
-    public ResponseEntity deleteArticle(@PathVariable String slug) {
+    public ResponseEntity<Object> deleteArticle(@PathVariable String slug) {
         articleService.delete(slug);
         return ResponseEntity.status(204).build();
     }
 
     @GetMapping
-    public Map<String, Object> listArticles(@RequestParam(required = false) String tag,
+    public ResponseEntity<Map<String, Object>> listArticles(@RequestParam(required = false) String tag,
                                             @RequestParam(required = false) String author,
                                             @RequestParam(required = false) String favorited,
                                             @RequestParam(defaultValue = "20") int limit,
@@ -60,31 +59,29 @@ public class ArticleController {
         } else {
             list = articleService.getAll(limit, offset);
         }
-        return Map.of("articles", list);
+        return ResponseEntity.ok(Map.of("articles", list));
     }
 
     @GetMapping("/feed")
-    public Map<String, Object> feed(@RequestParam(defaultValue = "20") int limit,
+    public ResponseEntity<Map<String, Object>> feed(@RequestParam(defaultValue = "20") int limit,
                                     @RequestParam(defaultValue = "0") int offset) {
         List<ArticleViewDto> list = articleService.getByFollowedAuthors(limit, offset);
-        return Map.of("articles", list);
+        return ResponseEntity.ok(Map.of("articles", list));
     }
 
     @PostMapping("/{slug}/favorite")
-    public Map<String, Object> favArticle(@PathVariable String slug) {
+    public ResponseEntity<Map<String, Object>> favArticle(@PathVariable String slug) {
         ArticleViewDto articleViewDto = articleService.addToFavorite(slug);
-        return getArticleMapWrapper(articleViewDto);
+        return ResponseEntity.ok(getArticleMapWrapper(articleViewDto));
     }
 
     @DeleteMapping("/{slug}/favorite")
-    public Map<String, Object> unFavArticle(@PathVariable String slug) {
+    public ResponseEntity<Map<String, Object>> unFavArticle(@PathVariable String slug) {
         ArticleViewDto articleViewDto = articleService.removeFromFavorite(slug);
-        return getArticleMapWrapper(articleViewDto);
+        return ResponseEntity.ok(getArticleMapWrapper(articleViewDto));
     }
 
     private Map<String, Object> getArticleMapWrapper(Object object) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("article", object);
-        return map;
+        return Map.of("article", object);
     }
 }

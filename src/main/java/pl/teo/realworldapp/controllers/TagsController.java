@@ -1,6 +1,7 @@
 package pl.teo.realworldapp.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,8 @@ public class TagsController {
     private final ArticleService articleService;
 
     @GetMapping()
-    public Map<String, Set<String>> getTags() {
+    public ResponseEntity<Map<String, Set<String>>> getTags() {
         Set<String> tags = articleService.getTags();
-        return Map.of("tags", tags);
+        return ResponseEntity.ok(Map.of("tags", tags));
     }
 }
